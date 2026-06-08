@@ -1,0 +1,43 @@
+<div class="flex justify-between items-center mb-8">
+  <div class="flex items-center gap-3">
+    <%= image_tag Current.user.avatar_url(size: 40), class: "w-10 h-10 rounded-full border shadow-sm" %>
+    <div class="flex flex-col">
+      <h1 class="text-lg font-bold leading-tight"><%= Current.user.name %></h1>
+      <div class="text-xs text-muted"><%= Current.user.email %></div>
+    </div>
+  </div>
+  <%= button_to t(".logout"), logout_url, method: :delete, class: "btn btn-secondary btn-sm" %>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mb-8">
+  <div class="p-6 border rounded-xl">
+    <div class="text-xs text-muted uppercase mb-2"><%= t(".total_users") %></div>
+    <div class="text-3xl font-bold"><%= @total_users %></div>
+  </div>
+  <div class="p-6 border rounded-xl">
+    <div class="text-xs text-muted uppercase mb-2"><%= t(".total_sessions") %></div>
+    <div class="text-3xl font-bold"><%= @total_sessions %></div>
+  </div>
+  <div class="p-6 border rounded-xl">
+    <div class="text-xs text-muted uppercase mb-2"><%= t(".total_runners") %></div>
+    <div class="text-3xl font-bold"><%= @total_runners %></div>
+  </div>
+</div>
+
+<div class="mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold"><%= t(".runners") %></h2>
+    <%= link_to t(".manage_runners"), runners_path, class: "text-sm text-muted" %>
+  </div>
+</div>
+
+<div class="mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold"><%= t(".my_sessions") %></h2>
+    <%= link_to t(".manage_sessions"), my_sessions_path(script_name: nil), class: "text-sm text-muted" %>
+  </div>
+  <%= turbo_stream_from Current.identity, "sessions" %>
+  <%= turbo_frame_tag "sessions", class: "flex flex-col gap-4" do %>
+    <%= render partial: "my/sessions/session", collection: @sessions %>
+  <% end %>
+</div>

@@ -1,0 +1,25 @@
+<%= tag.div id: dom_id(runner), class: "p-6 border rounded-xl bg-surface flex items-end justify-between gap-4 shadow-sm" do %>
+  <div class="flex flex-col gap-2">
+    <div class="font-bold text-base flex items-center gap-2">
+      <%= runner.name %>
+      <span class="bg-zinc-100 px-2 py-0.5 rounded-md text-xs font-mono font-normal uppercase"><%= runner.status %></span>
+    </div>
+    <div class="text-sm text-muted">
+      <%= t(".registered_by", email: runner.identity.email) %>
+      <% if runner.last_heartbeat_at.present? %>
+        • <%= t(".heartbeat", time: time_ago_in_words(runner.last_heartbeat_at)) %>
+      <% end %>
+    </div>
+    <% if runner.current_run_id.present? %>
+      <div class="text-sm text-muted font-mono"><%= t(".current_run", id: runner.current_run_id) %></div>
+    <% end %>
+    <% if runner.labels.present? %>
+      <div class="flex gap-2">
+        <% runner.labels.each do |key, value| %>
+          <span class="bg-zinc-100 px-2 py-0.5 rounded-md text-xs font-mono"><%= key %>=<%= value %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <%= button_to t(".remove"), runner_path(runner), method: :delete, form: { data: { turbo_confirm: t(".confirm_remove") } }, class: "btn btn-secondary btn-sm" %>
+<% end %>

@@ -1,0 +1,123 @@
+# Files in the config/locales directory are used for internationalization and
+# are automatically loaded by Rails. If you want to use locales other than
+# English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t "hello"
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t("hello") %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more about the API, please read the Rails Internationalization guide
+# at https://guides.rubyonrails.org/i18n.html.
+#
+# Be aware that YAML interprets the following case-insensitive strings as
+# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
+# must be quoted to be interpreted as strings. For example:
+#
+#     en:
+#       "yes": yup
+#       enabled: "ON"
+
+en:
+  hello: Hello world
+  devices:
+    authorizations:
+      show:
+        title: "Authorize Device"
+        prompt_with_code_html: "Do you want to authorize the device with code %{code}?"
+        approve: "Approve"
+        deny: "Deny"
+        prompt_enter_code: "Please enter the authorization code shown on your device:"
+        placeholder_code: "ABCD-1234"
+        next: "Next"
+  admin:
+    show:
+      title: "Admin"
+      subtitle: "Staff tools and observability"
+      stats: "Stats"
+      stats_description: "Accounts, users, and system activity"
+      jobs: "Jobs"
+      jobs_description: "Monitor and manage background work"
+    stats:
+      show:
+        title: "Stats"
+        back: "Back to admin"
+        accounts: "Accounts"
+        users: "Users"
+        personal_accounts: "Personal Accounts"
+        account: "Account"
+        created: "Created"
+  dashboards:
+    show:
+      welcome_back: "Welcome back, %{name}"
+      logout: "Logout"
+      total_users: "Users"
+      total_sessions: "Sessions"
+      total_runners: "Runners"
+      coming_soon: "Coming soon"
+      runners: "Runners"
+      manage_runners: "Manage runners"
+      my_sessions: "My Sessions"
+      manage_sessions: "Manage sessions"
+  runners:
+    index:
+      title: "Runners"
+      subtitle: "Registered workers for this account"
+      back: "Back"
+      empty: "No runners have registered yet."
+      setup_title: "Connect a runner"
+      setup_subtitle: "Run setup once with this account token, then start the runner."
+      setup_step: "Setup"
+      start_step: "Start"
+    runner:
+      registered_by: "Registered by %{email}"
+      heartbeat: "Last heartbeat %{time} ago"
+      current_run: "Run: %{id}"
+      remove: "Remove"
+      confirm_remove: "Remove this runner?"
+    destroy:
+      removed: "Runner removed."
+  onboardings:
+    new:
+      title: "Create your account"
+      subtitle: "Complete your profile to get started."
+      username_placeholder: "your-username"
+      username_description: "Choose a unique username. This will be your personal URL slug."
+      nickname_placeholder: "Display name"
+      nickname_description: "Enter your full name or nickname to display on your profile."
+      nickname_hint: "This is how others will see you"
+      username_fallback: "username"
+      submit: "Create Account"
+  sessions:
+    new:
+      title: "Sign in to Runlet"
+      subtitle: "Enter your email to receive a verification code."
+      email_placeholder: "email@example.com"
+      submit: "Continue"
+    magic_links:
+      show:
+        title: "Check your email"
+        subtitle: "We've sent a 6-character code to your inbox."
+        submit: "Verify Code"
+        dev_code: "Development Code"
+  my:
+    sessions:
+      index:
+        title: "My Sessions"
+      session:
+        current: "Current"
+        ip: "IP: %{ip}"
+        time_ago: "%{time} ago"
+        revoke: "Revoke"
+        confirm_revoke: "Are you sure?"
+      destroy:
+        revoked: "Session revoked."

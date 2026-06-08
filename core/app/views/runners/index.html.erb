@@ -1,0 +1,38 @@
+<div class="flex justify-between items-center mb-8">
+  <div>
+    <h1 class="text-2xl font-bold"><%= t(".title") %></h1>
+    <div class="text-sm text-muted mt-1"><%= t(".subtitle") %></div>
+  </div>
+  <%= link_to t(".back"), root_path, class: "btn btn-secondary btn-sm" %>
+</div>
+
+<section class="p-6 border rounded-xl bg-surface shadow-sm mb-8">
+  <div class="flex justify-between items-center gap-4 mb-4">
+    <div>
+      <h2 class="text-lg font-bold"><%= t(".setup_title") %></h2>
+      <div class="text-sm text-muted mt-1"><%= t(".setup_subtitle") %></div>
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <div>
+      <div class="text-xs text-muted uppercase mb-2"><%= t(".setup_step") %></div>
+      <pre class="p-4 border rounded-md bg-zinc-50 font-mono text-sm overflow-x-auto"><code><%= @runner_setup_command %></code></pre>
+    </div>
+
+    <div>
+      <div class="text-xs text-muted uppercase mb-2"><%= t(".start_step") %></div>
+      <pre class="p-4 border rounded-md bg-zinc-50 font-mono text-sm overflow-x-auto"><code>runlet-runner</code></pre>
+    </div>
+  </div>
+</section>
+
+<div class="flex flex-col gap-4">
+  <% if @runners.any? %>
+    <%= render partial: "runner", collection: @runners %>
+  <% else %>
+    <div class="p-8 border rounded-xl bg-surface text-center text-muted">
+      <%= t(".empty") %>
+    </div>
+  <% end %>
+</div>
