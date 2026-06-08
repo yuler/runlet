@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runlet Design</title>
+    <link rel="stylesheet" href="../../ui/src/index.css" />
+    <style>
+      :root {
+        color: var(--rl-color-text);
+        background: var(--rl-color-background);
+        font-family: var(--rl-font-sans);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: var(--rl-space-page-desktop);
+      }
+
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      header {
+        margin-bottom: var(--rl-space-section);
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: var(--rl-letter-spacing);
+      }
+
+      h1 {
+        font-size: var(--rl-text-title-size);
+        line-height: var(--rl-text-title-line-height);
+      }
+
+      h2 {
+        margin-top: 36px;
+        margin-bottom: 14px;
+        font-size: 20px;
+        line-height: 1.25;
+      }
+
+      p {
+        margin: 10px 0 0;
+        color: var(--rl-color-text-muted);
+        font-size: var(--rl-text-body-size);
+        line-height: var(--rl-text-body-line-height);
+      }
+
+      a {
+        color: var(--rl-color-text);
+        text-decoration-color: var(--rl-color-neutral-500);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+      }
+
+      code {
+        color: var(--rl-color-text);
+        font-family: var(--rl-font-mono);
+        font-size: 0.92em;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        background: var(--rl-color-surface);
+        border: 1px solid var(--rl-color-border);
+        border-radius: var(--rl-radius-card);
+      }
+
+      th,
+      td {
+        padding: var(--rl-space-compact-y) var(--rl-space-compact-x);
+        border-bottom: 1px solid var(--rl-color-divider);
+        text-align: left;
+        vertical-align: middle;
+      }
+
+      th {
+        color: var(--rl-color-text);
+        font-size: var(--rl-text-caption-size);
+      }
+
+      td {
+        color: var(--rl-color-text-muted);
+        font-size: var(--rl-text-caption-size);
+        line-height: 1.45;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--rl-color-text-muted);
+        font-size: var(--rl-text-body-size);
+        line-height: 1.7;
+      }
+
+      .swatch {
+        display: inline-flex;
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        border: 1px solid var(--rl-color-neutral-400);
+        border-radius: 4px;
+        vertical-align: -4px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--rl-space-grid);
+      }
+
+      .card {
+        background: var(--rl-color-surface);
+        border: 1px solid var(--rl-color-border);
+        border-radius: var(--rl-radius-card);
+        padding: 18px;
+      }
+
+      .card h2 {
+        margin-top: 0;
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: var(--rl-space-page-mobile);
+        }
+
+        .cards {
+          grid-template-columns: 1fr;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Runlet Design</h1>
+        <p>Runlet 的视觉方向应保持简单、清晰、偏开发者工具感：灰白、克制、可快速扫描。</p>
+        <p>
+          参考
+          <a href="https://github.com/JimLiu/baoyu-design">JimLiu/baoyu-design</a>
+          的思路，先给足设计上下文，再产出可落地的界面。
+        </p>
+      </header>
+
+      <section aria-labelledby="colors">
+        <h2 id="colors">Colors</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>用途</th>
+              <th>颜色</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Background</td>
+              <td><span class="swatch" style="background: #ffffff"></span><code>#FFFFFF</code></td>
+              <td>主背景，保持干净留白</td>
+            </tr>
+            <tr>
+              <td>Subtle Background</td>
+              <td><span class="swatch" style="background: #fafafa"></span><code>#FAFAFA</code></td>
+              <td>页面底色、弱分区</td>
+            </tr>
+            <tr>
+              <td>Surface</td>
+              <td><span class="swatch" style="background: #ffffff"></span><code>#FFFFFF</code></td>
+              <td>卡片、面板、输入框背景</td>
+            </tr>
+            <tr>
+              <td>Surface Muted</td>
+              <td><span class="swatch" style="background: #f5f5f5"></span><code>#F5F5F5</code></td>
+              <td>悬浮、禁用、浅色块</td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td><span class="swatch" style="background: #171717"></span><code>#171717</code></td>
+              <td>主标题、正文、关键 UI</td>
+            </tr>
+            <tr>
+              <td>Muted Text</td>
+              <td><span class="swatch" style="background: #525252"></span><code>#525252</code></td>
+              <td>次级文字</td>
+            </tr>
+            <tr>
+              <td>Subtle Text</td>
+              <td><span class="swatch" style="background: #737373"></span><code>#737373</code></td>
+              <td>说明文字、辅助信息</td>
+            </tr>
+            <tr>
+              <td>Accent</td>
+              <td><span class="swatch" style="background: #171717"></span><code>#171717</code></td>
+              <td>主操作、当前状态、关键强调</td>
+            </tr>
+            <tr>
+              <td>Accent Soft</td>
+              <td><span class="swatch" style="background: #ededed"></span><code>#EDEDED</code></td>
+              <td>轻强调背景</td>
+            </tr>
+            <tr>
+              <td>Success</td>
+              <td><span class="swatch" style="background: #86efac"></span><code>#86EFAC</code></td>
+              <td>成功、运行中、通过</td>
+            </tr>
+            <tr>
+              <td>Warning</td>
+              <td><span class="swatch" style="background: #fde68a"></span><code>#FDE68A</code></td>
+              <td>等待、提醒</td>
+            </tr>
+            <tr>
+              <td>Error</td>
+              <td><span class="swatch" style="background: #fca5a5"></span><code>#FCA5A5</code></td>
+              <td>错误、失败</td>
+            </tr>
+            <tr>
+              <td>Border</td>
+              <td><span class="swatch" style="background: #e5e5e5"></span><code>#E5E5E5</code></td>
+              <td>默认边框</td>
+            </tr>
+            <tr>
+              <td>Divider</td>
+              <td><span class="swatch" style="background: #f0f0f0"></span><code>#F0F0F0</code></td>
+              <td>轻分割线</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="cards" aria-label="Design rules">
+        <article class="card">
+          <h2>Typography</h2>
+          <ul>
+            <li>Font: <code>Inter, ui-sans-serif, system-ui</code></li>
+            <li>Title: 32px / 1.1 / weight 700+</li>
+            <li>Body: 16px / 1.6 / weight 400</li>
+            <li>Caption: 14px / 1.4 / weight 400</li>
+            <li>Letter spacing: <code>0</code></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Shape</h2>
+          <ul>
+            <li>Card radius: <code>8px</code></li>
+            <li>Logo tile radius: <code>36px</code></li>
+            <li>Button radius: <code>8px</code></li>
+            <li>Border: 1px solid <code>#E5E5E5</code></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Spacing</h2>
+          <ul>
+            <li>Page padding: <code>40px</code> desktop, <code>20px</code> mobile</li>
+            <li>Section gap: <code>28px</code></li>
+            <li>Grid gap: <code>18px</code></li>
+            <li>Compact padding: <code>12px 14px</code></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Usage</h2>
+          <ul>
+            <li>Prefer white and near-white backgrounds with dark text.</li>
+            <li>Use black as the main accent; avoid bright decorative colors.</li>
+            <li>Keep layouts calm and functional.</li>
+            <li>When unsure, follow Vercel / Notion style.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

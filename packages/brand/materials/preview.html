@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runlet Brand Materials</title>
+    <style>
+      :root {
+        color: #111827;
+        background: #efeee9;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 40px;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.1;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0 0 28px;
+        color: #4b5563;
+        font-size: 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      figure {
+        margin: 0;
+        background: #ffffff;
+        border: 1px solid rgba(17, 24, 39, 0.12);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      figcaption {
+        padding: 12px 14px;
+        border-top: 1px solid rgba(17, 24, 39, 0.08);
+        color: #374151;
+        font-size: 14px;
+      }
+
+      strong {
+        display: block;
+        color: #111827;
+        font-size: 15px;
+      }
+
+      @media (max-width: 860px) {
+        body {
+          padding: 20px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Runlet Brand Materials</h1>
+      <p>Slogan: Let it run.</p>
+      <section class="grid" aria-label="Generated brand material concepts">
+        <figure>
+          <img src="./runlet-material-01-brand-board.png" alt="Runlet brand board material" />
+          <figcaption><strong>01 Brand Board</strong> Primary logo, icon, sticker, and badge direction.</figcaption>
+        </figure>
+        <figure>
+          <img src="./runlet-material-02-dark-kit.png" alt="Runlet dark mode brand kit" />
+          <figcaption><strong>02 Dark Kit</strong> Developer-tool system feel with CLI and README applications.</figcaption>
+        </figure>
+        <figure>
+          <img src="./runlet-material-03-merch.png" alt="Runlet launch merch material" />
+          <figcaption><strong>03 Merch</strong> Sticker, pin, notebook, and launch-material treatment.</figcaption>
+        </figure>
+        <figure>
+          <img src="./runlet-material-04-app-icons.png" alt="Runlet app icon exploration sheet" />
+          <figcaption><strong>04 App Icons</strong> Six icon directions for favicon and app identity refinement.</figcaption>
+        </figure>
+      </section>
+    </main>
+  </body>
+</html>

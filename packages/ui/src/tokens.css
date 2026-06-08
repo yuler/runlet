@@ -1,0 +1,55 @@
+:root {
+  /* Neutral palette */
+  --rl-color-white: #ffffff;
+  --rl-color-neutral-50: #fafafa;
+  --rl-color-neutral-100: #f5f5f5;
+  --rl-color-neutral-200: #ededed;
+  --rl-color-neutral-300: #e5e5e5;
+  --rl-color-neutral-400: #d4d4d4;
+  --rl-color-neutral-500: #a3a3a3;
+  --rl-color-neutral-600: #737373;
+  --rl-color-neutral-700: #525252;
+  --rl-color-neutral-900: #171717;
+
+  /* Status colors */
+  --rl-color-success: #86efac;
+  --rl-color-warning: #fde68a;
+  --rl-color-error: #fca5a5;
+
+  /* Semantic colors */
+  --rl-color-background: var(--rl-color-white);
+  --rl-color-background-subtle: var(--rl-color-neutral-50);
+  --rl-color-surface: var(--rl-color-white);
+  --rl-color-surface-muted: var(--rl-color-neutral-100);
+  --rl-color-text: var(--rl-color-neutral-900);
+  --rl-color-text-muted: var(--rl-color-neutral-700);
+  --rl-color-text-subtle: var(--rl-color-neutral-600);
+  --rl-color-accent: var(--rl-color-neutral-900);
+  --rl-color-accent-soft: var(--rl-color-neutral-200);
+  --rl-color-border: var(--rl-color-neutral-300);
+  --rl-color-divider: #f0f0f0;
+
+  /* Typography */
+  --rl-font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --rl-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --rl-text-title-size: 32px;
+  --rl-text-title-line-height: 1.1;
+  --rl-text-body-size: 16px;
+  --rl-text-body-line-height: 1.6;
+  --rl-text-caption-size: 14px;
+  --rl-text-caption-line-height: 1.4;
+  --rl-letter-spacing: 0;
+
+  /* Spacing */
+  --rl-space-page-desktop: 40px;
+  --rl-space-page-mobile: 20px;
+  --rl-space-section: 28px;
+  --rl-space-grid: 18px;
+  --rl-space-compact-y: 12px;
+  --rl-space-compact-x: 14px;
+
+  /* Radius */
+  --rl-radius-card: 8px;
+  --rl-radius-button: 8px;
+  --rl-radius-logo-tile: 36px;
+}
