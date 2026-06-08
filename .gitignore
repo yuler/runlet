@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+dist/
+/apps/runner/bin/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+
+# Rails
+core/.bundle/
+core/log/*
+core/tmp/*
+core/storage/*
+core/db/*.sqlite3
+core/db/*.sqlite3-*

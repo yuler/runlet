@@ -1,0 +1,26 @@
+{
+  "name": "runlet",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "type": "module",
+  "scripts": {
+    "core:dev": "cd core && bin/dev",
+    "core:setup": "cd core && bin/setup",
+    "core:test": "cd core && bin/rails test",
+    "core:lint": "cd core && bin/rubocop",
+    "core:lint:fix": "cd core && bin/rubocop -A",
+    "core:rails": "cd core && bin/rails",
+    "core:commands": "./scripts/core-commands.sh",
+    "build": "pnpm runner:build && pnpm types:check",
+    "runner:dev": "cd apps/runner && go run ./cmd/runlet-runner",
+    "runner:build": "cd apps/runner && go build -o ./bin/runlet-runner ./cmd/runlet-runner",
+    "runner:test": "cd apps/runner && go test ./...",
+    "types:check": "pnpm --filter @runlet/types check",
+    "clean": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" clean",
+    "lint": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" lint"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
