@@ -78,12 +78,24 @@ en:
       setup_subtitle: "Run setup once with this account token, then start the runner."
       setup_step: "Setup"
       start_step: "Start"
+      recent_runs: "Recent shell runs"
+      no_runs: "No shell runs have been queued yet."
+      exit_code: "Exit %{code}"
     runner:
       registered_by: "Registered by %{email}"
       heartbeat: "Last heartbeat %{time} ago"
       current_run: "Run: %{id}"
+      command: "Shell command"
+      command_placeholder: "pwd && ls"
+      cwd: "Workspace path"
+      cwd_placeholder: "Runner default workspace"
+      timeout: "Timeout"
+      enqueue: "Run"
       remove: "Remove"
       confirm_remove: "Remove this runner?"
+    runs:
+      create:
+        created: "Shell run queued."
     destroy:
       removed: "Runner removed."
   onboardings:

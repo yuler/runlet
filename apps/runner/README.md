@@ -6,7 +6,7 @@ The runner is intentionally small:
 
 - register or reuse a local runner identity
 - send heartbeats to Runlet Core
-- claim one eligible run at a time
+- claim one queued shell run at a time
 - execute the run command in a configured workspace
 - stream stdout/stderr as run events
 - finish the run with an exit code and status
@@ -76,3 +76,17 @@ Supported environment variables:
 - `RUNLET_DEFAULT_TIMEOUT_SECONDS`
 
 `RUNLET_SHELL` may be left empty to use the platform default (`/bin/sh` on Unix, `cmd.exe` on Windows).
+
+## Shell runs
+
+The first runner version only supports `mode=shell`. Core queues shell commands from the account runners page, and the runner claims one command at a time. If the queued run does not specify `cwd`, execution happens in `RUNLET_WORKSPACE` or the workspace saved by `runlet-runner setup`.
+
+Use `-once` to test a single claim/execute/report cycle:
+
+```bash
+RUNLET_API_URL=http://localhost:3000/account-slug \
+RUNLET_TOKEN=runner-token \
+RUNLET_RUNNER_NAME=local-runner \
+RUNLET_WORKSPACE=/Users/yule/Projects/runlet \
+go run ./cmd/runlet-runner -once -non-interactive
+```

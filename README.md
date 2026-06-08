@@ -55,6 +55,7 @@ pnpm core:test
 pnpm runner:dev
 pnpm runner:build
 pnpm runner:test
+pnpm verify:runner-flow
 pnpm types:check
 pnpm build
 ```
@@ -93,6 +94,7 @@ pnpm runner:dev
 ```
 
 Once it has started, the runner should appear on the account runners page at `/<account-slug>/runners`.
+From that page, queue a shell command for the runner. The first version is intentionally shell-only: Core stores the command, the runner claims one queued command for its configured workspace, executes it through the local shell, streams stdout/stderr back to Core, and records the final exit code.
 
 You can also pass the same values as flags:
 
@@ -127,8 +129,8 @@ Current runner behavior:
 
 - registers or reuses a runner by account and name
 - sends periodic heartbeats to Core
-- claims one eligible run at a time
-- executes commands in the configured workspace
+- claims one queued shell run at a time
+- executes commands in the configured workspace unless the run provides a relative override
 - streams stdout and stderr as run events
 - reports final exit code and status
 

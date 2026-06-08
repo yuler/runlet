@@ -2,6 +2,7 @@ class Account < ApplicationRecord
   has_many :users
   has_many :identities, through: :users
   has_many :runners
+  has_many :runner_runs
 
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: true, format: { with: AccountSlug::FORMAT },

@@ -29,6 +29,7 @@ type ClaimResponse struct {
 type RunSpec struct {
 	ID             string            `json:"id"`
 	RunletID       string            `json:"runletId"`
+	Mode           string            `json:"mode"`
 	Command        string            `json:"command"`
 	Cwd            string            `json:"cwd"`
 	Env            map[string]string `json:"env"`

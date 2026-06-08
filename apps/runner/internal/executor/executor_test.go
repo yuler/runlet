@@ -10,7 +10,7 @@ import (
 func TestRunStreamsOutputAndSucceeds(t *testing.T) {
 	var events []Event
 	result := Run(context.Background(), Spec{
-		Command: "printf 'hello\\n'",
+		Command: "printf 'hello\\nworld\\n'",
 	}, func(event Event) {
 		events = append(events, event)
 	})
@@ -21,8 +21,8 @@ func TestRunStreamsOutputAndSucceeds(t *testing.T) {
 	if result.ExitCode == nil || *result.ExitCode != 0 {
 		t.Fatalf("expected exit code 0, got %#v", result.ExitCode)
 	}
-	if len(events) != 1 || events[0].Message != "hello" {
-		t.Fatalf("expected streamed hello event, got %#v", events)
+	if len(events) != 2 || events[0].Message != "hello" || events[1].Message != "world" {
+		t.Fatalf("expected streamed hello/world events, got %#v", events)
 	}
 }
 

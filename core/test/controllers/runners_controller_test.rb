@@ -21,6 +21,27 @@ class RunnersControllerTest < ActionDispatch::IntegrationTest
     assert_select "code", text: "runlet-runner"
     assert_select "div", text: /local-runner/
     assert_select "span", text: "os=darwin"
+    assert_select "textarea[name='runner_run[command]']"
+  end
+
+  test "should queue shell run for runner" do
+    runner = Runner.register!(account: @account, identity: @identity, name: "local-runner", labels: {})
+    sign_in
+
+    assert_difference "RunnerRun.count", 1 do
+      post runner_runs_url(runner, script_name: "/#{@account.slug}"),
+        params: { runner_run: { command: "pwd", cwd: "subdir", timeout_seconds: 30 } }
+    end
+
+    run = RunnerRun.last
+    assert_equal @account, run.account
+    assert_equal runner, run.runner
+    assert_equal @identity, run.identity
+    assert_equal "shell", run.mode
+    assert_equal "queued", run.status
+    assert_equal "pwd", run.command
+    assert_redirected_to runners_path
+    assert_equal "Shell run queued.", flash[:notice]
   end
 
   test "should show empty state" do

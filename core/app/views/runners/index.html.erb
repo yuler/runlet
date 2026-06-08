@@ -36,3 +36,38 @@
     </div>
   <% end %>
 </div>
+
+<section class="mt-8">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg font-bold"><%= t(".recent_runs") %></h2>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <% if @recent_runs.any? %>
+      <% @recent_runs.each do |run| %>
+        <div class="p-4 border rounded-xl bg-surface">
+          <div class="flex justify-between gap-3">
+            <div class="font-mono text-sm truncate"><%= run.command %></div>
+            <span class="bg-zinc-100 px-2 py-0.5 rounded-md text-xs font-mono uppercase"><%= run.status %></span>
+          </div>
+          <div class="text-xs text-muted mt-2">
+            <%= run.runner.name %>
+            <% if run.exit_code.present? %>
+              • <%= t(".exit_code", code: run.exit_code) %>
+            <% end %>
+            <% if run.finished_at.present? %>
+              • <%= time_ago_in_words(run.finished_at) %> ago
+            <% end %>
+          </div>
+          <% if run.events.any? %>
+            <pre class="mt-3 p-3 border rounded-md bg-zinc-50 font-mono text-xs overflow-x-auto"><code><%= run.events.order(:sequence).last(6).map { |event| "[#{event.stream || event.level}] #{event.message}" }.join("\n") %></code></pre>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="p-6 border rounded-xl bg-surface text-center text-muted">
+        <%= t(".no_runs") %>
+      </div>
+    <% end %>
+  </div>
+</section>

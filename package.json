@@ -16,6 +16,7 @@
     "runner:dev": "cd apps/runner && go run ./cmd/runlet-runner",
     "runner:build": "cd apps/runner && go build -o ./bin/runlet-runner ./cmd/runlet-runner",
     "runner:test": "cd apps/runner && go test ./...",
+    "verify:runner-flow": "./scripts/verify-runner-flow.sh",
     "types:check": "pnpm --filter @runlet/types check",
     "clean": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" clean",
     "lint": "pnpm --filter \"./apps/**\" --filter \"./packages/**\" lint"

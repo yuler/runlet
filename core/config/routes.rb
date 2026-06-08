@@ -22,7 +22,11 @@ Rails.application.routes.draw do
   # Because the middleware moves the slug to SCRIPT_NAME,
   # Rails sees "/" as the path for the dashboard.
   resource :dashboard, only: :show
-  resources :runners, only: [ :index, :destroy ]
+  resources :runners, only: [ :index, :destroy ] do
+    scope module: :runners do
+      resources :runs, only: :create
+    end
+  end
 
   # Defines the root path route ("/")
   root to: "dashboards#show"
@@ -55,6 +59,12 @@ Rails.application.routes.draw do
         scope module: :runners do
           resources :claims, only: :create
         end
+      end
+      resources :runs, only: [] do
+        scope module: :runs do
+          resources :events, only: :create
+        end
+        post :finish, on: :member, to: "runs/finishes#create"
       end
       namespace :test do
         get :private, to: "private#show"

@@ -1,4 +1,5 @@
-<%= tag.div id: dom_id(runner), class: "p-6 border rounded-xl bg-surface flex items-end justify-between gap-4 shadow-sm" do %>
+<%= tag.div id: dom_id(runner), class: "p-6 border rounded-xl bg-surface flex flex-col gap-5 shadow-sm" do %>
+  <div class="flex items-end justify-between gap-4">
   <div class="flex flex-col gap-2">
     <div class="font-bold text-base flex items-center gap-2">
       <%= runner.name %>
@@ -22,4 +23,23 @@
     <% end %>
   </div>
   <%= button_to t(".remove"), runner_path(runner), method: :delete, form: { data: { turbo_confirm: t(".confirm_remove") } }, class: "btn btn-secondary btn-sm" %>
+  </div>
+
+  <%= form_with model: RunnerRun.new, url: runner_runs_path(runner), class: "grid gap-3" do |form| %>
+    <div>
+      <%= form.label :command, t(".command"), class: "text-xs text-muted uppercase mb-2 block" %>
+      <%= form.text_area :command, rows: 3, placeholder: t(".command_placeholder"), class: "w-full font-mono text-sm" %>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-[1fr_140px_auto] gap-3 items-end">
+      <div>
+        <%= form.label :cwd, t(".cwd"), class: "text-xs text-muted uppercase mb-2 block" %>
+        <%= form.text_field :cwd, placeholder: t(".cwd_placeholder"), class: "w-full font-mono text-sm" %>
+      </div>
+      <div>
+        <%= form.label :timeout_seconds, t(".timeout"), class: "text-xs text-muted uppercase mb-2 block" %>
+        <%= form.number_field :timeout_seconds, min: 1, placeholder: "300", class: "w-full font-mono text-sm" %>
+      </div>
+      <%= form.submit t(".enqueue"), class: "btn btn-primary btn-sm" %>
+    </div>
+  <% end %>
 <% end %>

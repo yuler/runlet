@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"path/filepath"
 	"sync/atomic"
@@ -155,9 +156,21 @@ func (s *Service) execute(ctx context.Context, run *api.RunSpec) error {
 		}
 	}
 
+	if run.Mode != "" && run.Mode != "shell" {
+		message := fmt.Sprintf("unsupported run mode %q", run.Mode)
+		sendEvent("error", "runner", message, nil)
+		return s.api.FinishRun(ctx, run.ID, api.FinishRunRequest{
+			Status:     "failed",
+			FinishedAt: time.Now().UTC(),
+			Message:    message,
+		})
+	}
+
 	cwd := run.Cwd
 	if cwd == "" {
 		cwd = s.cfg.DefaultWorkspace
+	} else if !filepath.IsAbs(cwd) && s.cfg.DefaultWorkspace != "" {
+		cwd = filepath.Join(s.cfg.DefaultWorkspace, cwd)
 	}
 	if cwd != "" {
 		if abs, err := filepath.Abs(cwd); err == nil {

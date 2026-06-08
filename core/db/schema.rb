@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_06_09_000001) do
+ActiveRecord::Schema[8.2].define(version: 2026_06_09_000003) do
   create_table "accounts", id: :uuid, force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
@@ -53,6 +53,43 @@ ActiveRecord::Schema[8.2].define(version: 2026_06_09_000001) do
     t.index ["identity_id"], name: "index_magic_links_on_identity_id"
   end
 
+  create_table "runner_run_events", id: :uuid, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "level", default: "info", null: false
+    t.text "message", null: false
+    t.json "metadata", default: {}, null: false
+    t.datetime "occurred_at", null: false
+    t.uuid "runner_run_id", null: false
+    t.integer "sequence", null: false
+    t.string "stream"
+    t.datetime "updated_at", null: false
+    t.index ["runner_run_id", "sequence"], name: "index_runner_run_events_on_runner_run_id_and_sequence", unique: true
+    t.index ["runner_run_id"], name: "index_runner_run_events_on_runner_run_id"
+  end
+
+  create_table "runner_runs", id: :uuid, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.datetime "claimed_at"
+    t.text "command", null: false
+    t.datetime "created_at", null: false
+    t.string "cwd"
+    t.json "env", default: {}, null: false
+    t.integer "exit_code"
+    t.datetime "finished_at"
+    t.uuid "identity_id", null: false
+    t.text "message"
+    t.string "mode", default: "shell", null: false
+    t.uuid "runner_id", null: false
+    t.datetime "started_at"
+    t.string "status", default: "queued", null: false
+    t.integer "timeout_seconds"
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_runner_runs_on_account_id"
+    t.index ["identity_id"], name: "index_runner_runs_on_identity_id"
+    t.index ["runner_id", "status", "created_at"], name: "index_runner_runs_on_runner_id_and_status_and_created_at"
+    t.index ["runner_id"], name: "index_runner_runs_on_runner_id"
+  end
+
   create_table "runners", id: :uuid, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.datetime "created_at", null: false
@@ -93,4 +130,9 @@ ActiveRecord::Schema[8.2].define(version: 2026_06_09_000001) do
     t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["identity_id"], name: "index_users_on_identity_id"
   end
+
+  add_foreign_key "runner_run_events", "runner_runs"
+  add_foreign_key "runner_runs", "accounts"
+  add_foreign_key "runner_runs", "identities"
+  add_foreign_key "runner_runs", "runners"
 end

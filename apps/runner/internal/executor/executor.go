@@ -66,8 +66,13 @@ func Run(ctx context.Context, spec Spec, emit func(Event)) Result {
 	go scan(&wg, stdout, "stdout", emit)
 	go scan(&wg, stderr, "stderr", emit)
 
-	waitErr := cmd.Wait()
+	waitCh := make(chan error, 1)
+	go func() {
+		waitCh <- cmd.Wait()
+	}()
+
 	wg.Wait()
+	waitErr := <-waitCh
 
 	if ctx.Err() == context.DeadlineExceeded {
 		terminateProcessGroup(cmd)
@@ -121,6 +126,9 @@ func scan(wg *sync.WaitGroup, reader io.Reader, stream string, emit func(Event))
 		emit(Event{Stream: stream, Message: scanner.Text()})
 	}
 	if err := scanner.Err(); err != nil {
+		if errors.Is(err, os.ErrClosed) {
+			return
+		}
 		emit(Event{Stream: "runner", Message: fmt.Sprintf("failed to read %s: %v", stream, err)})
 	}
 }

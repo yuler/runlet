@@ -70,7 +70,7 @@ class Api::V1::RunnersControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "claim returns no run until run dispatch exists" do
+  test "claim returns no run until shell run exists" do
     runner = Runner.register!(account: @account, identity: @identity, name: "local-runner", labels: {})
 
     post api_v1_runner_claims_url(runner),

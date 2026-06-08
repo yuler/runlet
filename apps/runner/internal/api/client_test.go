@@ -95,7 +95,14 @@ func TestClientClaim(t *testing.T) {
 		if r.URL.Path != "/api/v1/runners/rnr_123/claims" {
 			t.Fatalf("unexpected path %s", r.URL.Path)
 		}
-		_ = json.NewEncoder(w).Encode(ClaimResponse{})
+		_ = json.NewEncoder(w).Encode(ClaimResponse{Run: &RunSpec{
+			ID:             "run_123",
+			Mode:           "shell",
+			Command:        "pwd",
+			Cwd:            "subdir",
+			Env:            map[string]string{"RUNLET": "1"},
+			TimeoutSeconds: 30,
+		}})
 	}))
 	defer server.Close()
 
@@ -108,8 +115,11 @@ func TestClientClaim(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if run != nil {
-		t.Fatalf("expected no run, got %#v", run)
+	if run == nil {
+		t.Fatal("expected run")
+	}
+	if run.Mode != "shell" || run.Command != "pwd" || run.Cwd != "subdir" {
+		t.Fatalf("unexpected run %#v", run)
 	}
 }
 

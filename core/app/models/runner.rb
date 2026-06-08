@@ -3,6 +3,7 @@ class Runner < ApplicationRecord
 
   belongs_to :account
   belongs_to :identity
+  has_many :runner_runs, dependent: :destroy
 
   validates :name, presence: true, length: { maximum: 120 }
   validates :status, presence: true, inclusion: { in: STATUSES }

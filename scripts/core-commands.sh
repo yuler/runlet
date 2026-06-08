@@ -8,7 +8,7 @@ Runlet core commands:
   pnpm core:dev          Start the Rails development server
   pnpm core:test         Run Rails tests
   pnpm core:lint         Run RuboCop
-  pnpm core:rails -- ... Run Rails commands
+  pnpm core:rails routes  Run Rails commands
 
 Core API:
 
@@ -20,4 +20,6 @@ Core API:
   POST   /api/v1/runners
   PATCH  /api/v1/runners/:id
   POST   /api/v1/runners/:runner_id/claims
+  POST   /api/v1/runs/:run_id/events
+  POST   /api/v1/runs/:id/finish
 COMMANDS
