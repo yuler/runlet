@@ -9,7 +9,7 @@ import (
 
 func TestSetupDoesNotCarryStoredRunnerID(t *testing.T) {
 	clearRunletEnv(t)
-	path := filepath.Join(t.TempDir(), "runner.conf")
+	path := filepath.Join(t.TempDir(), "settings.json")
 	oldSeed := config.DefaultSeed()
 	oldSeed.RunnerID = "old-runner-id"
 	oldSeed.Token = "old-token"
@@ -18,9 +18,10 @@ func TestSetupDoesNotCarryStoredRunnerID(t *testing.T) {
 	}
 
 	err := runSetup([]string{
-		"new-token",
+		"--token", "new-token",
 		"--api-url", "http://localhost:3000/acme",
 		"--config", path,
+		"--foreground",
 	})
 	if err != nil {
 		t.Fatal(err)

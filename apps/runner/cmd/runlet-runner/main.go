@@ -13,6 +13,7 @@ import (
 
 	"github.com/runlet/runlet/apps/runner/internal/api"
 	"github.com/runlet/runlet/apps/runner/internal/config"
+	"github.com/runlet/runlet/apps/runner/internal/daemon"
 	"github.com/runlet/runlet/apps/runner/internal/runner"
 )
 
@@ -80,6 +81,7 @@ func runSetup(args []string) error {
 	var flagSeed config.Seed
 	var labels labelFlags
 	var configPath string
+	var foreground bool
 
 	flags := flag.NewFlagSet("setup", flag.ContinueOnError)
 	flags.StringVar(&flagSeed.APIURL, "api-url", "", "Runlet Core API URL")
@@ -93,6 +95,7 @@ func runSetup(args []string) error {
 	flags.IntVar(&flagSeed.HeartbeatIntervalSeconds, "heartbeat-interval", 0, "heartbeat interval in seconds")
 	flags.IntVar(&flagSeed.DefaultTimeoutSeconds, "timeout", 0, "default run timeout in seconds")
 	flags.Var(&labels, "label", "runner label as key=value; may be repeated")
+	flags.BoolVar(&foreground, "foreground", false, "save configuration without starting the background runner")
 	positionalToken := ""
 	parseArgs := args
 	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
@@ -127,7 +130,42 @@ func runSetup(args []string) error {
 	}
 
 	fmt.Fprintf(os.Stdout, "Runlet runner configured at %s\n", path)
-	fmt.Fprintln(os.Stdout, "Start it with: runlet-runner")
+	if foreground {
+		fmt.Fprintln(os.Stdout, "Start it with: runlet-runner")
+		return nil
+	}
+
+	pidPath, err := config.DefaultPIDPath()
+	if err != nil {
+		return err
+	}
+	logPath, err := config.DefaultLogPath()
+	if err != nil {
+		return err
+	}
+
+	executable, err := os.Executable()
+	if err != nil {
+		return err
+	}
+
+	runnerArgs := []string{"-non-interactive"}
+	if configPath != "" {
+		runnerArgs = append(runnerArgs, "-config", configPath)
+	}
+
+	pid, err := daemon.Start(daemon.Options{
+		Executable: executable,
+		Args:       runnerArgs,
+		PIDPath:    pidPath,
+		LogPath:    logPath,
+		WorkDir:    cfg.DefaultWorkspace,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(os.Stdout, "Running in the background (pid %d). Logs: %s\n", pid, logPath)
 	return nil
 }
 

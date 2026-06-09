@@ -61,7 +61,7 @@ This usually happens after a hard kill (Ctrl-\\, OOM, laptop sleep) — Rails le
 
 **Likely causes.**
 
-1. **Slug missing from `--api-url`.** The runner does *not* append the account slug for you. `http://localhost:3000` is wrong; `http://localhost:3000/<slug>` is right. Re-run `runlet-runner setup <token> --api-url http://localhost:3000/<slug>` to rewrite the config.
+1. **Slug missing from `--api-url`.** The runner does *not* append the account slug for you. `http://localhost:3000` is wrong; `http://localhost:3000/<slug>` is right. Re-run `runlet-runner setup --token <token> --api-url http://localhost:3000/<slug>` to rewrite the config.
 2. **Token belongs to a different account.** A `Session#signed_id` is bound to an identity, but the URL slug pins the request to an account. If the identity is not a user of that account, `Api::V1::BaseController` returns `403`. Confirm with:
 
    ```bash
@@ -72,15 +72,14 @@ This usually happens after a hard kill (Ctrl-\\, OOM, laptop sleep) — Rails le
    '
    ```
 
-3. **Runner row was deleted from `/<slug>/runners` while the binary still has the old `RUNLET_RUNNER_ID`.** Either re-run `setup` (which clears the saved id) or delete the `runner_id=` line from `runner.conf` by hand.
+3. **Runner row was deleted from `/<slug>/runners` while the binary still has the old `runnerId`.** Either re-run `setup` (which clears the saved id) or remove `"runnerId"` from `~/.runlet/settings.json` by hand.
 
 ## `setup` succeeded but the runner says `token invalid`
 
 The setup flow writes the token verbatim to disk; it does not validate it against Core. If you generated the token from a Rails console and copy-pasted it, double-check there is no whitespace or trailing newline:
 
 ```bash
-grep -c '^token=' /tmp/runlet-runner-test/runner.conf   # should be 1
-awk -F= '/^token=/ { print length($2) }' /tmp/runlet-runner-test/runner.conf
+jq -r '.token | length' ~/.runlet/settings.json
 ```
 
 A valid `Session#signed_id` for this codebase is ~205 characters. Significantly shorter values are usually a truncated paste.
@@ -111,7 +110,8 @@ cd core
 bin/rails runner '
 Account.find_by!(slug: "<slug>").runners.find_by!(name: "claude-test-runner")&.destroy
 '
-rm -rf /tmp/runlet-runner-test
+kill "$(cat ~/.runlet/runner.pid)" 2>/dev/null || true
+rm -rf /tmp/runlet-runner-test ~/.runlet
 ```
 
 Leaving the runner row in place is harmless, but its `last_heartbeat_at` will go stale and clutter the dashboard.

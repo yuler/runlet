@@ -1,37 +1,79 @@
 package config
 
 import (
-	"bufio"
+	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
 
-const defaultConfigFile = "runner.conf"
+const (
+	defaultConfigDir  = ".runlet"
+	defaultConfigFile = "settings.json"
+	defaultPIDFile    = "runner.pid"
+	defaultLogFile    = "runner.log"
+)
 
-func DefaultPath() (string, error) {
-	dir, err := os.UserConfigDir()
+type settingsFile struct {
+	APIURL                   string            `json:"apiUrl,omitempty"`
+	Token                    string            `json:"token,omitempty"`
+	RunnerID                 string            `json:"runnerId,omitempty"`
+	Name                     string            `json:"name,omitempty"`
+	Concurrency              int               `json:"concurrency,omitempty"`
+	PollIntervalSeconds      int               `json:"pollIntervalSeconds,omitempty"`
+	HeartbeatIntervalSeconds int               `json:"heartbeatIntervalSeconds,omitempty"`
+	DefaultTimeoutSeconds    int               `json:"defaultTimeoutSeconds,omitempty"`
+	DefaultWorkspace         string            `json:"workspace,omitempty"`
+	Shell                    string            `json:"shell,omitempty"`
+	Labels                   map[string]string `json:"labels,omitempty"`
+}
+
+func DefaultDir() (string, error) {
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "runlet", defaultConfigFile), nil
+	return filepath.Join(home, defaultConfigDir), nil
+}
+
+func DefaultPath() (string, error) {
+	dir, err := DefaultDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, defaultConfigFile), nil
+}
+
+func DefaultPIDPath() (string, error) {
+	dir, err := DefaultDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, defaultPIDFile), nil
+}
+
+func DefaultLogPath() (string, error) {
+	dir, err := DefaultDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, defaultLogFile), nil
 }
 
 func LoadSeed(path string) (Seed, error) {
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return Seed{}, nil
 		}
 		return Seed{}, err
 	}
-	defer file.Close()
 
-	return readSeed(file)
+	var stored settingsFile
+	if err := json.Unmarshal(data, &stored); err != nil {
+		return Seed{}, err
+	}
+	return seedFromSettings(stored), nil
 }
 
 func SaveSeed(path string, seed Seed) error {
@@ -39,106 +81,43 @@ func SaveSeed(path string, seed Seed) error {
 		return err
 	}
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	data, err := json.MarshalIndent(settingsFromSeed(seed), "", "  ")
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	data = append(data, '\n')
 
-	return writeSeed(file, seed)
+	return os.WriteFile(path, data, 0o600)
 }
 
-func readSeed(reader io.Reader) (Seed, error) {
-	var seed Seed
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		key, rawValue, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		value, err := strconv.Unquote(strings.TrimSpace(rawValue))
-		if err != nil {
-			value = strings.TrimSpace(rawValue)
-		}
-		applyValue(&seed, strings.TrimSpace(key), value)
-	}
-	if err := scanner.Err(); err != nil {
-		return Seed{}, err
-	}
-	return seed, nil
-}
-
-func writeSeed(writer io.Writer, seed Seed) error {
-	lines := []struct {
-		key   string
-		value string
-	}{
-		{"RUNLET_API_URL", seed.APIURL},
-		{"RUNLET_TOKEN", seed.Token},
-		{"RUNLET_RUNNER_ID", seed.RunnerID},
-		{"RUNLET_RUNNER_NAME", seed.Name},
-		{"RUNLET_CONCURRENCY", intString(seed.Concurrency)},
-		{"RUNLET_POLL_INTERVAL_SECONDS", intString(seed.PollIntervalSeconds)},
-		{"RUNLET_HEARTBEAT_INTERVAL_SECONDS", intString(seed.HeartbeatIntervalSeconds)},
-		{"RUNLET_DEFAULT_TIMEOUT_SECONDS", intString(seed.DefaultTimeoutSeconds)},
-		{"RUNLET_WORKSPACE", seed.DefaultWorkspace},
-		{"RUNLET_SHELL", seed.Shell},
-		{"RUNLET_LABELS", FormatLabels(seed.Labels)},
-	}
-
-	for _, line := range lines {
-		if line.value == "" {
-			continue
-		}
-		if _, err := fmt.Fprintf(writer, "%s=%s\n", line.key, strconv.Quote(line.value)); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func applyValue(seed *Seed, key, value string) {
-	switch key {
-	case "RUNLET_API_URL":
-		seed.APIURL = value
-	case "RUNLET_TOKEN":
-		seed.Token = value
-	case "RUNLET_RUNNER_ID":
-		seed.RunnerID = value
-	case "RUNLET_RUNNER_NAME":
-		seed.Name = value
-	case "RUNLET_CONCURRENCY":
-		seed.Concurrency = parseInt(value)
-	case "RUNLET_POLL_INTERVAL_SECONDS":
-		seed.PollIntervalSeconds = parseInt(value)
-	case "RUNLET_HEARTBEAT_INTERVAL_SECONDS":
-		seed.HeartbeatIntervalSeconds = parseInt(value)
-	case "RUNLET_DEFAULT_TIMEOUT_SECONDS":
-		seed.DefaultTimeoutSeconds = parseInt(value)
-	case "RUNLET_WORKSPACE":
-		seed.DefaultWorkspace = value
-	case "RUNLET_SHELL":
-		seed.Shell = value
-	case "RUNLET_LABELS":
-		seed.Labels = ParseLabels(value)
+func settingsFromSeed(seed Seed) settingsFile {
+	return settingsFile{
+		APIURL:                   seed.APIURL,
+		Token:                    seed.Token,
+		RunnerID:                 seed.RunnerID,
+		Name:                     seed.Name,
+		Concurrency:              seed.Concurrency,
+		PollIntervalSeconds:      seed.PollIntervalSeconds,
+		HeartbeatIntervalSeconds: seed.HeartbeatIntervalSeconds,
+		DefaultTimeoutSeconds:    seed.DefaultTimeoutSeconds,
+		DefaultWorkspace:         seed.DefaultWorkspace,
+		Shell:                    seed.Shell,
+		Labels:                   seed.Labels,
 	}
 }
 
-func intString(value int) string {
-	if value == 0 {
-		return ""
+func seedFromSettings(stored settingsFile) Seed {
+	return Seed{
+		APIURL:                   stored.APIURL,
+		Token:                    stored.Token,
+		RunnerID:                 stored.RunnerID,
+		Name:                     stored.Name,
+		Concurrency:              stored.Concurrency,
+		PollIntervalSeconds:      stored.PollIntervalSeconds,
+		HeartbeatIntervalSeconds: stored.HeartbeatIntervalSeconds,
+		DefaultTimeoutSeconds:    stored.DefaultTimeoutSeconds,
+		DefaultWorkspace:         stored.DefaultWorkspace,
+		Shell:                    stored.Shell,
+		Labels:                   stored.Labels,
 	}
-	return strconv.Itoa(value)
-}
-
-func parseInt(value string) int {
-	parsed, err := strconv.Atoi(strings.TrimSpace(value))
-	if err != nil {
-		return 0
-	}
-	return parsed
 }

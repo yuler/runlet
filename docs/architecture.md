@@ -34,7 +34,8 @@ Rails 8 application using SQLite + Solid Queue / Cache / Cable. Owns:
 
 Small Go binary structured as four internal packages:
 
-- `internal/config` — layered configuration (defaults → setup file → environment → flags) plus interactive `setup` prompts.
+- `internal/config` — layered configuration (defaults → `~/.runlet/settings.json` → environment → flags) plus interactive `setup` prompts.
+- `internal/daemon` — background runner process started by `setup`.
 - `internal/api` — typed HTTP client for the Core API (`RegisterRunner`, `Heartbeat`, `Claim`, `SendRunEvent`, `FinishRun`).
 - `internal/executor` — runs a single shell command in a workspace, streams stdout/stderr line-by-line, enforces timeouts, cleans up the process group.
 - `internal/runner` — service that ties registration, heartbeats, polling, and execution together. Implements the `Once` mode used by tests and CI.

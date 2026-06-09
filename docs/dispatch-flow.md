@@ -34,17 +34,33 @@ Note the account slug printed at `/<slug>/runners` — you will paste it into th
 ## 3. Configure and register the runner
 
 ```bash
-runlet-runner setup <token> \
+runlet-runner setup \
+  --token <token> \
   --api-url 'http://localhost:3000/<slug>' \
   --workspace /tmp/runlet-runner-test \
   --name claude-test-runner \
-  --config /tmp/runlet-runner-test/runner.conf
+  --config /tmp/runlet-runner-test/settings.json
 ```
 
-Run it once to perform the initial registration:
+`setup` writes settings and starts the runner in the background by default:
+
+```
+Runlet runner configured at /tmp/runlet-runner-test/settings.json
+Running in the background (pid …). Logs: ~/.runlet/runner.log
+```
+
+For a one-off registration without the daemon, add `--foreground` and run once manually:
 
 ```bash
-runlet-runner -config /tmp/runlet-runner-test/runner.conf -non-interactive -once
+runlet-runner setup \
+  --token <token> \
+  --api-url 'http://localhost:3000/<slug>' \
+  --workspace /tmp/runlet-runner-test \
+  --name claude-test-runner \
+  --config /tmp/runlet-runner-test/settings.json \
+  --foreground
+
+runlet-runner -config /tmp/runlet-runner-test/settings.json -non-interactive -once
 # → "runner registered" and the process exits if no run is queued
 ```
 
@@ -74,8 +90,16 @@ puts "QUEUED: #{run.id}"
 
 ## 5. Execute and verify
 
+If you used the default `setup` (background daemon), the queued run is picked up automatically. Tail the log:
+
 ```bash
-runlet-runner -config /tmp/runlet-runner-test/runner.conf -non-interactive -once
+tail -f ~/.runlet/runner.log
+```
+
+For a one-off foreground run:
+
+```bash
+runlet-runner -config /tmp/runlet-runner-test/settings.json -non-interactive -once
 ```
 
 Expected output (timestamps elided):
@@ -113,11 +137,13 @@ If any line is missing, see [troubleshooting](troubleshooting.md#dropped-output-
 ## 6. Tear down
 
 ```bash
-# Stop the runner process (Ctrl-C if running long, otherwise it already exited via -once)
+# Stop the background runner
+kill "$(cat ~/.runlet/runner.pid)"
+
 # Delete the runner row from the UI, or:
 cd core
 bin/rails runner '
 Account.find_by!(slug: "<slug>").runners.find_by!(name: "claude-test-runner").destroy
 '
-rm -f /tmp/runlet-runner-test/runner.conf
+rm -rf /tmp/runlet-runner-test
 ```

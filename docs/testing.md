@@ -61,7 +61,8 @@ apps/runner/
 └── internal/
     ├── api/client_test.go                # httptest-backed Client
     ├── config/config_test.go             # seeds, env, prompts, validation
-    ├── config/store_test.go              # disk read/write
+    ├── config/store_test.go              # JSON settings read/write
+    ├── daemon/daemon_test.go             # background runner start
     ├── executor/executor_test.go         # shell execution, timeouts, env, no-drop regression
     └── runner/runner_test.go             # registration, claim+execute happy path
 ```

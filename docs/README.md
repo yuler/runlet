@@ -25,9 +25,9 @@ pnpm core:dev
 cd core
 bin/rails runner 'session = Identity.find_by!(email: "you@example.com").sessions.create!(user_agent: "Runlet CLI", ip_address: "127.0.0.1"); puts session.signed_id'
 
-# 3. Configure and start the runner
-runlet-runner setup <token> --api-url http://localhost:3000/<account-slug>
-runlet-runner -once   # or omit -once to keep polling
+# 3. Configure and start the runner (starts in the background by default)
+runlet-runner setup --token <token> --api-url http://localhost:3000/<account-slug>
+# or: runlet-runner -once   # one-off foreground run with --foreground setup
 ```
 
 See [`dispatch-flow.md`](dispatch-flow.md) for the full hands-on walkthrough used to validate the MVP.

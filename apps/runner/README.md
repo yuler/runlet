@@ -21,14 +21,22 @@ go run ./cmd/runlet-runner -once
 
 ## Configuration
 
-The default path is:
+The default settings path is `~/.runlet/settings.json`.
 
 ```bash
-runlet-runner setup TOKEN --api-url http://localhost:3000/account-slug
-runlet-runner
+runlet-runner setup \
+  --token <token> \
+  --api-url http://localhost:3000/account-slug
 ```
 
-`setup` writes a small key/value config file to the OS user config directory. It does not use JSON config.
+`setup` writes JSON settings and starts the runner in the background by default. Logs go to `~/.runlet/runner.log`.
+
+Use `--foreground` to save settings without starting the daemon:
+
+```bash
+runlet-runner setup --token <token> --api-url http://localhost:3000/account-slug --foreground
+runlet-runner
+```
 
 The runner also starts in inquire mode when no setup file exists and stdin is a terminal. It includes local test defaults, so pressing return through every prompt uses:
 
