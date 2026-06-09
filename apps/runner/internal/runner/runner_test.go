@@ -65,13 +65,86 @@ func TestExecuteRejectsUnsupportedMode(t *testing.T) {
 	}
 }
 
+func TestStartOnceClaimsAndExecutesQueuedRun(t *testing.T) {
+	workspace := t.TempDir()
+	fake := &fakeAPI{
+		runs: []*api.RunSpec{{
+			ID:      "run_xyz",
+			Mode:    "shell",
+			Command: "printf hi",
+		}},
+	}
+	service := New(config.Config{
+		APIURL:                   "http://localhost:3000",
+		Token:                    "t",
+		Name:                     "local",
+		Concurrency:              1,
+		DefaultWorkspace:         workspace,
+		PollIntervalSeconds:      1,
+		HeartbeatIntervalSeconds: 60,
+		DefaultTimeoutSeconds:    30,
+	}, fake, slog.New(slog.NewTextHandler(os.Stderr, nil)))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := service.Start(ctx, Options{Once: true}); err != nil {
+		t.Fatal(err)
+	}
+
+	if fake.register != 1 {
+		t.Fatalf("expected runner to register once, got %d", fake.register)
+	}
+	if fake.finish.Status != "succeeded" {
+		t.Fatalf("expected succeeded, got %#v", fake.finish)
+	}
+
+	var stdoutEvent api.RunEventRequest
+	for _, ev := range fake.events {
+		if ev.Stream == "stdout" {
+			stdoutEvent = ev
+			break
+		}
+	}
+	if stdoutEvent.Message != "hi" {
+		t.Fatalf("expected stdout 'hi' event, got events %#v", fake.events)
+	}
+}
+
+func TestStartOnceWithConfiguredRunnerSkipsRegistration(t *testing.T) {
+	fake := &fakeAPI{}
+	service := New(config.Config{
+		APIURL:                   "http://localhost:3000",
+		Token:                    "t",
+		RunnerID:                 "rnr_existing",
+		Name:                     "local",
+		Concurrency:              1,
+		PollIntervalSeconds:      1,
+		HeartbeatIntervalSeconds: 60,
+		DefaultTimeoutSeconds:    30,
+	}, fake, slog.New(slog.NewTextHandler(os.Stderr, nil)))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := service.Start(ctx, Options{Once: true}); err != nil {
+		t.Fatal(err)
+	}
+	if fake.register != 0 {
+		t.Fatalf("expected no registration when runner id is set, got %d", fake.register)
+	}
+}
+
 type fakeAPI struct {
-	events []api.RunEventRequest
-	finish api.FinishRunRequest
+	events   []api.RunEventRequest
+	finish   api.FinishRunRequest
+	runs     []*api.RunSpec
+	register int
 }
 
 func (f *fakeAPI) RegisterRunner(context.Context, api.RegisterRunnerRequest) (api.RegisterRunnerResponse, error) {
-	return api.RegisterRunnerResponse{}, nil
+	f.register++
+	return api.RegisterRunnerResponse{RunnerID: "rnr_fake"}, nil
 }
 
 func (f *fakeAPI) Heartbeat(context.Context, string, api.HeartbeatRequest) error {
@@ -79,7 +152,12 @@ func (f *fakeAPI) Heartbeat(context.Context, string, api.HeartbeatRequest) error
 }
 
 func (f *fakeAPI) Claim(context.Context, string, api.ClaimRequest) (*api.RunSpec, error) {
-	return nil, nil
+	if len(f.runs) == 0 {
+		return nil, nil
+	}
+	run := f.runs[0]
+	f.runs = f.runs[1:]
+	return run, nil
 }
 
 func (f *fakeAPI) SendRunEvent(_ context.Context, _ string, req api.RunEventRequest) error {

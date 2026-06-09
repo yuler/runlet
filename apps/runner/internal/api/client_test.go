@@ -139,3 +139,81 @@ func TestClientReturnsHTTPErrorBody(t *testing.T) {
 		t.Fatal("expected error")
 	}
 }
+
+func TestClientSendRunEvent(t *testing.T) {
+	var path string
+	var got RunEventRequest
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&got)
+		w.WriteHeader(http.StatusCreated)
+	}))
+	defer server.Close()
+
+	client, err := NewClient(server.URL, "token")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = client.SendRunEvent(context.Background(), "run_123", RunEventRequest{
+		Sequence: 1,
+		Level:    "info",
+		Stream:   "stdout",
+		Message:  "hello",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/api/v1/runs/run_123/events" {
+		t.Fatalf("unexpected path %s", path)
+	}
+	if got.Message != "hello" || got.Sequence != 1 {
+		t.Fatalf("unexpected event payload: %#v", got)
+	}
+}
+
+func TestClientFinishRun(t *testing.T) {
+	var method, path string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		method = r.Method
+		path = r.URL.Path
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	client, err := NewClient(server.URL, "token")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exitCode := 0
+	err = client.FinishRun(context.Background(), "run_123", FinishRunRequest{
+		Status:   "succeeded",
+		ExitCode: &exitCode,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("unexpected method %s", method)
+	}
+	if path != "/api/v1/runs/run_123/finish" {
+		t.Fatalf("unexpected path %s", path)
+	}
+}
+
+func TestNewClientRejectsInvalidURL(t *testing.T) {
+	if _, err := NewClient("not-a-url", "token"); err == nil {
+		t.Fatal("expected error for missing scheme/host")
+	}
+}
+
+func TestNewClientStripsTrailingSlash(t *testing.T) {
+	client, err := NewClient("http://example.com/acme/", "token")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if client.baseURL != "http://example.com/acme" {
+		t.Fatalf("expected trimmed base url, got %q", client.baseURL)
+	}
+}

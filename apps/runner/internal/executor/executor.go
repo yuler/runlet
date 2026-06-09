@@ -66,13 +66,11 @@ func Run(ctx context.Context, spec Spec, emit func(Event)) Result {
 	go scan(&wg, stdout, "stdout", emit)
 	go scan(&wg, stderr, "stderr", emit)
 
-	waitCh := make(chan error, 1)
-	go func() {
-		waitCh <- cmd.Wait()
-	}()
-
+	// Wait for both readers to drain to EOF before calling cmd.Wait().
+	// cmd.Wait() closes the pipes on return, which would truncate any
+	// output the scan goroutines have not yet read.
 	wg.Wait()
-	waitErr := <-waitCh
+	waitErr := cmd.Wait()
 
 	if ctx.Err() == context.DeadlineExceeded {
 		terminateProcessGroup(cmd)

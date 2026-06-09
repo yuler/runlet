@@ -1,6 +1,7 @@
 class RunnerRun < ApplicationRecord
   MODES = %w[shell].freeze
   STATUSES = %w[queued running succeeded failed timed_out canceled].freeze
+  TERMINAL_STATUSES = %w[succeeded failed timed_out canceled].freeze
 
   belongs_to :account
   belongs_to :runner
@@ -41,12 +42,23 @@ class RunnerRun < ApplicationRecord
   end
 
   def finish!(status:, exit_code:, finished_at:, message:)
-    update!(
-      status:,
-      exit_code:,
-      finished_at: finished_at || Time.current,
-      message: message.presence
-    )
+    with_lock do
+      if TERMINAL_STATUSES.include?(self.status)
+        errors.add(:status, "is already terminal (#{self.status})")
+        raise ActiveRecord::RecordInvalid, self
+      end
+      unless TERMINAL_STATUSES.include?(status.to_s)
+        errors.add(:status, "must be one of #{TERMINAL_STATUSES.join(', ')}")
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      update!(
+        status:,
+        exit_code:,
+        finished_at: finished_at || Time.current,
+        message: message.presence
+      )
+    end
   end
 
   def queued?

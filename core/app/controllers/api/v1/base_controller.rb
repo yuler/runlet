@@ -14,6 +14,10 @@ class Api::V1::BaseController < ActionController::API
     render json: { error: exception.message }, status: :not_found
   end
 
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    render json: { error: exception.message }, status: :unprocessable_entity
+  end
+
   private
     def require_supported_desktop_version
       version = desktop_client_version

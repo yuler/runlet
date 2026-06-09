@@ -89,4 +89,26 @@ class Api::V1::RunnersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unauthorized
   end
+
+  test "register returns 422 when name is blank" do
+    post api_v1_runners_url,
+      params: { name: "  ", labels: {} },
+      headers: @headers,
+      as: :json
+
+    assert_response :unprocessable_entity
+    assert_includes JSON.parse(response.body)["error"], "Name can't be blank"
+  end
+
+  test "heartbeat without status falls back to idle" do
+    runner = Runner.register!(account: @account, identity: @identity, name: "local-runner", labels: {})
+
+    patch api_v1_runner_url(runner),
+      params: { labels: {} },
+      headers: @headers,
+      as: :json
+
+    assert_response :no_content
+    assert_equal "idle", runner.reload.status
+  end
 end

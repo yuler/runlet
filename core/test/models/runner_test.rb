@@ -44,4 +44,77 @@ class RunnerTest < ActiveSupport::TestCase
     assert_equal "run_123", runner.current_run_id
     assert_equal({ "queue" => "default" }, runner.labels)
   end
+
+  test "heartbeat falls back to idle when status is blank" do
+    runner = Runner.register!(account: @account, identity: @identity, name: "local-runner", labels: {})
+
+    runner.heartbeat!(status: "", current_run_id: nil, labels: {})
+
+    assert_equal "idle", runner.status
+    assert_nil runner.current_run_id
+  end
+
+  test "heartbeat ignores blank current_run_id" do
+    runner = Runner.register!(account: @account, identity: @identity, name: "local-runner", labels: {})
+
+    runner.heartbeat!(status: "running", current_run_id: "", labels: {})
+
+    assert_nil runner.current_run_id
+  end
+
+  test "register coerces non-string label values into strings" do
+    runner = Runner.register!(
+      account: @account,
+      identity: @identity,
+      name: "local-runner",
+      labels: { capacity: 4, busy: false }
+    )
+
+    assert_equal({ "capacity" => "4", "busy" => "false" }, runner.labels)
+  end
+
+  test "rejects invalid status" do
+    runner = Runner.new(account: @account, identity: @identity, name: "x", status: "bogus", labels: {})
+
+    assert_not runner.valid?
+    assert_includes runner.errors[:status], "is not included in the list"
+  end
+
+  test "rejects blank name" do
+    runner = Runner.new(account: @account, identity: @identity, name: "   ", status: "idle", labels: {})
+
+    assert_not runner.valid?
+    assert_includes runner.errors[:name], "can't be blank"
+  end
+
+  test "rejects nested label values" do
+    runner = Runner.new(
+      account: @account,
+      identity: @identity,
+      name: "local-runner",
+      status: "idle",
+      labels: { meta: { nested: "value" } }
+    )
+
+    assert_not runner.valid?
+    assert_includes runner.errors[:labels], "must be a flat object with string values"
+  end
+
+  test "enforces unique runner names within an account" do
+    Runner.create!(account: @account, identity: @identity, name: "local-runner", labels: {})
+
+    duplicate = Runner.new(account: @account, identity: @identity, name: "local-runner", labels: {})
+
+    assert_raises(ActiveRecord::RecordNotUnique) { duplicate.save(validate: false) }
+  end
+
+  test "for_account scope filters by account" do
+    other_identity = Identity.create!(email: "scope-#{SecureRandom.hex}@example.com")
+    other_account = Account.create!(name: "Scoped", personal: true)
+    other_account.users.create!(identity: other_identity, name: "Owner", role: "owner")
+    mine = Runner.register!(account: @account, identity: @identity, name: "mine", labels: {})
+    Runner.register!(account: other_account, identity: other_identity, name: "theirs", labels: {})
+
+    assert_equal [ mine ], Runner.for_account(@account).to_a
+  end
 end
